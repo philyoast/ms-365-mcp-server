@@ -605,21 +605,21 @@
     "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts",
     "method": "get",
     "toolName": "list-meeting-transcripts",
-    "scopes": ["OnlineMeetingTranscript.Read"],
+    "scopes": ["OnlineMeetingTranscript.Read.All"],
     "llmTip": "Lists all transcripts for a specific online meeting. Requires the meeting to have transcription enabled."
   },
   {
     "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}",
     "method": "get",
     "toolName": "get-meeting-transcript",
-    "scopes": ["OnlineMeetingTranscript.Read"],
+    "scopes": ["OnlineMeetingTranscript.Read.All"],
     "llmTip": "Get metadata for a specific transcript including creation time and meeting reference"
   },
   {
     "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content",
     "method": "get",
     "toolName": "get-meeting-transcript-content",
-    "scopes": ["OnlineMeetingTranscript.Read"],
+    "scopes": ["OnlineMeetingTranscript.Read.All"],
     "returnDownloadUrl": true,
     "llmTip": "Downloads the transcript content in WebVTT (.vtt) format. Parse the VTT to extract speaker-attributed text."
   }
