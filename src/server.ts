@@ -6,6 +6,7 @@ import express, { Request, Response } from 'express';
 import logger, { enableConsoleLogging } from './logger.js';
 import { registerAuthTools } from './auth-tools.js';
 import { registerGraphTools, registerDiscoveryTools } from './graph-tools.js';
+import { registerCompositeTools } from './composite-tools.js';
 import GraphClient from './graph-client.js';
 import AuthManager, { buildScopesFromEndpoints } from './auth.js';
 import { MicrosoftOAuthProvider } from './oauth-provider.js';
@@ -93,6 +94,9 @@ class MicrosoftGraphServer {
         this.options.enabledTools,
         this.options.orgMode
       );
+
+      // Register composite tools (higher-level abstractions)
+      registerCompositeTools(this.server, this.graphClient);
     }
   }
 
