@@ -620,7 +620,6 @@
     "method": "get",
     "toolName": "get-meeting-transcript-content",
     "scopes": ["OnlineMeetingTranscript.Read.All"],
-    "returnDownloadUrl": true,
     "llmTip": "Downloads the transcript content in WebVTT (.vtt) format. Parse the VTT to extract speaker-attributed text."
   }
 ]
