@@ -57,6 +57,11 @@ export const TOOL_CATEGORIES: Record<string, ToolCategory> = {
     pattern: /search|query/i,
     description: 'Microsoft Search capabilities',
   },
+  meetings: {
+    name: 'meetings',
+    pattern: /meeting|transcript|onlineMeeting/i,
+    description: 'Online meetings and transcript access',
+  },
   users: {
     name: 'users',
     pattern: /user|list-users/i,

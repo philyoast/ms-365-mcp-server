@@ -586,5 +586,41 @@
     "toolName": "search-query",
     "scopes": ["Mail.Read", "Calendars.Read", "Files.Read.All", "People.Read"],
     "workScopes": ["Sites.Read.All", "Chat.Read", "ChannelMessage.Read.All"]
+  },
+  {
+    "pathPattern": "/me/onlineMeetings",
+    "method": "get",
+    "toolName": "list-online-meetings",
+    "scopes": ["OnlineMeetings.Read"],
+    "llmTip": "Lists online meetings created by or accessible to the signed-in user. Use $filter to narrow results, e.g., $filter=startDateTime ge 2024-01-01T00:00:00Z"
+  },
+  {
+    "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}",
+    "method": "get",
+    "toolName": "get-online-meeting",
+    "scopes": ["OnlineMeetings.Read"],
+    "llmTip": "Get details of a specific online meeting by its ID"
+  },
+  {
+    "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts",
+    "method": "get",
+    "toolName": "list-meeting-transcripts",
+    "scopes": ["OnlineMeetingTranscript.Read"],
+    "llmTip": "Lists all transcripts for a specific online meeting. Requires the meeting to have transcription enabled."
+  },
+  {
+    "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}",
+    "method": "get",
+    "toolName": "get-meeting-transcript",
+    "scopes": ["OnlineMeetingTranscript.Read"],
+    "llmTip": "Get metadata for a specific transcript including creation time and meeting reference"
+  },
+  {
+    "pathPattern": "/me/onlineMeetings/{onlineMeeting-id}/transcripts/{callTranscript-id}/content",
+    "method": "get",
+    "toolName": "get-meeting-transcript-content",
+    "scopes": ["OnlineMeetingTranscript.Read"],
+    "returnDownloadUrl": true,
+    "llmTip": "Downloads the transcript content in WebVTT (.vtt) format. Parse the VTT to extract speaker-attributed text."
   }
 ]
