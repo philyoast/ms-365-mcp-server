@@ -97,6 +97,7 @@ async function getTranscriptByMeeting(
       : `${date}T23:59:59`;
 
     // Step 2: Query calendar view
+    // Use makeRequest directly to get raw JSON (graphRequest formats to TOON)
     logger.info(`Step 1: Querying calendar from ${startDateTime} to ${endDateTime}`);
     const calendarPath = `/me/calendarView?startDateTime=${encodeURIComponent(startDateTime)}&endDateTime=${encodeURIComponent(endDateTime)}`;
     const calendarOptions: Record<string, unknown> = {
@@ -105,16 +106,16 @@ async function getTranscriptByMeeting(
       },
     };
 
-    const calendarResponse = await graphClient.graphRequest(calendarPath, calendarOptions);
-
-    if (calendarResponse.isError) {
+    let calendarData: any;
+    try {
+      calendarData = await graphClient.makeRequest(calendarPath, calendarOptions);
+    } catch (error) {
       return {
-        content: [{ type: 'text', text: `Failed to query calendar: ${calendarResponse.content[0]?.text}` }],
+        content: [{ type: 'text', text: `Failed to query calendar: ${(error as Error).message}` }],
         isError: true,
       };
     }
 
-    const calendarData = JSON.parse(calendarResponse.content[0].text);
     const events = calendarData.value || [];
 
     if (events.length === 0) {
@@ -149,16 +150,16 @@ async function getTranscriptByMeeting(
 
     // Step 4: Get full event details to extract joinUrl
     const eventPath = `/me/events/${matchingEvent.id}?$select=subject,onlineMeeting,onlineMeetingUrl,isOnlineMeeting`;
-    const eventResponse = await graphClient.graphRequest(eventPath, {});
-
-    if (eventResponse.isError) {
+    let eventData: any;
+    try {
+      eventData = await graphClient.makeRequest(eventPath, {});
+    } catch (error) {
       return {
-        content: [{ type: 'text', text: `Failed to get event details: ${eventResponse.content[0]?.text}` }],
+        content: [{ type: 'text', text: `Failed to get event details: ${(error as Error).message}` }],
         isError: true,
       };
     }
 
-    const eventData = JSON.parse(eventResponse.content[0].text);
     const joinUrl = eventData.onlineMeeting?.joinUrl;
 
     if (!joinUrl) {
@@ -172,16 +173,16 @@ async function getTranscriptByMeeting(
 
     // Step 5: Query online meetings by join URL to get meeting ID
     const meetingsPath = `/me/onlineMeetings?$filter=JoinWebUrl eq '${encodeURIComponent(joinUrl)}'`;
-    const meetingsResponse = await graphClient.graphRequest(meetingsPath, {});
-
-    if (meetingsResponse.isError) {
+    let meetingsData: any;
+    try {
+      meetingsData = await graphClient.makeRequest(meetingsPath, {});
+    } catch (error) {
       return {
-        content: [{ type: 'text', text: `Failed to resolve meeting ID: ${meetingsResponse.content[0]?.text}` }],
+        content: [{ type: 'text', text: `Failed to resolve meeting ID: ${(error as Error).message}` }],
         isError: true,
       };
     }
 
-    const meetingsData = JSON.parse(meetingsResponse.content[0].text);
     const onlineMeeting = meetingsData.value?.[0];
 
     if (!onlineMeeting) {
@@ -196,16 +197,16 @@ async function getTranscriptByMeeting(
 
     // Step 6: List transcripts for this meeting
     const transcriptsPath = `/me/onlineMeetings/${meetingId}/transcripts`;
-    const transcriptsResponse = await graphClient.graphRequest(transcriptsPath, {});
-
-    if (transcriptsResponse.isError) {
+    let transcriptsData: any;
+    try {
+      transcriptsData = await graphClient.makeRequest(transcriptsPath, {});
+    } catch (error) {
       return {
-        content: [{ type: 'text', text: `Failed to list transcripts: ${transcriptsResponse.content[0]?.text}` }],
+        content: [{ type: 'text', text: `Failed to list transcripts: ${(error as Error).message}` }],
         isError: true,
       };
     }
 
-    const transcriptsData = JSON.parse(transcriptsResponse.content[0].text);
     const transcripts = transcriptsData.value || [];
 
     if (transcripts.length === 0) {
@@ -224,25 +225,26 @@ async function getTranscriptByMeeting(
     logger.info(`Step 5: Found transcript, fetching content`);
 
     // Step 7: Fetch transcript content
+    // makeRequest returns { message: 'OK!', rawResponse: text } for non-JSON responses
     const contentPath = `/me/onlineMeetings/${meetingId}/transcripts/${transcriptId}/content`;
-    const contentResponse = await graphClient.graphRequest(contentPath, {
-      headers: {
-        Accept: 'text/vtt',
-      },
-    });
-
-    if (contentResponse.isError) {
+    let contentData: any;
+    try {
+      contentData = await graphClient.makeRequest(contentPath, {
+        headers: {
+          Accept: 'text/vtt',
+        },
+      });
+    } catch (error) {
       return {
-        content: [{ type: 'text', text: `Failed to fetch transcript content: ${contentResponse.content[0]?.text}` }],
+        content: [{ type: 'text', text: `Failed to fetch transcript content: ${(error as Error).message}` }],
         isError: true,
       };
     }
 
     logger.info(`Step 6: Successfully retrieved transcript`);
 
-    // Parse the response to extract VTT content
-    const responseData = JSON.parse(contentResponse.content[0].text);
-    const vttContent = responseData.rawResponse || responseData.message || 'No content';
+    // makeRequest wraps non-JSON responses in { message: 'OK!', rawResponse: text }
+    const vttContent = contentData.rawResponse || contentData.message || 'No content';
 
     // Build result with metadata
     const result = {
