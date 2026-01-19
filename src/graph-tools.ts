@@ -173,6 +173,12 @@ async function executeGraphTool(
       logger.info(`Setting timezone header: Prefer: outlook.timezone="${params.timezone}"`);
     }
 
+    // Handle custom Accept header for content endpoints (e.g., transcript content)
+    if (config?.acceptHeader) {
+      headers['Accept'] = config.acceptHeader;
+      logger.info(`Setting Accept header: ${config.acceptHeader}`);
+    }
+
     if (Object.keys(queryParams).length > 0) {
       const queryString = Object.entries(queryParams)
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
